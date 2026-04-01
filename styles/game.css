@@ -2,111 +2,128 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 :root {
-  --primary-color: #0d6efd;
-  --card-bg: #ffffff;
-  --accent: #dc3545;
-  --spacing: 1.2rem;
+    --primary-color: #0d6efd;
+    --card-bg: #ffffff;
+    --accent: #dc3545;
+    --spacing: 1.2rem;
 }
 
 body {
-  font-family: system-ui, -apple-system, sans-serif;
+    font-family: system-ui, -apple-system, sans-serif;
 }
 
 .navbar-brand {
-  font-family: 'Press Start 2P', system-ui;
-  letter-spacing: 3px;
+    font-family: 'Press Start 2P', system-ui;
+    letter-spacing: 3px;
 }
 
 /* Memory Board */
 .memory-board {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing);
-  max-width: 620px;
-  margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing);
+    max-width: 620px;
+    margin: 0 auto;
 }
 
 /* Card Styles */
 .memory-card {
-  aspect-ratio: 1 / 1;
-  perspective: 1000px;
-  cursor: pointer;
+    aspect-ratio: 1 / 1;
+    perspective: 1000px;
+    cursor: pointer;
 }
 
 .memory-card .inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  transform-style: preserve-3d;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform-style: preserve-3d;
 }
 
 .memory-card.flipped .inner,
 .memory-card.matched .inner {
-  transform: rotateY(180deg);
+    transform: rotateY(180deg);
 }
 
 .memory-card .front,
 .memory-card .back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.8rem;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  backface-visibility: hidden;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.8rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    backface-visibility: hidden;
 }
 
 .memory-card .front {
-  background-color: var(--card-bg);
-  border: 6px solid var(--primary-color);
+    background-color: var(--card-bg);
+    border: 6px solid var(--primary-color);
 }
 
 .memory-card .back {
-  background-color: #343a40;
-  color: white;
-  transform: rotateY(180deg);
+    background-color: #343a40;
+    color: white;
+    transform: rotateY(180deg);
 }
 
 .memory-card.matched .back {
-  background-color: #198754;
-  border: 6px solid #198754;
+    background-color: #198754;
+    border: 6px solid #198754;
 }
 
 /* Hover & Advanced Selectors */
 .memory-card:hover .front {
-  transform: scale(1.06);
+    transform: scale(1.06);
 }
 
 .memory-card:nth-child(4n) .front {
-  border-color: var(--accent);
+    border-color: var(--accent);
+}
+
+/* Keyboard focus — visible outline for accessibility (WCAG AA) */
+.memory-card:focus {
+    outline: 3px solid #fd7e14;
+    outline-offset: 3px;
+    border-radius: 14px;
+}
+
+.memory-card:focus:not(:focus-visible) {
+    outline: none;
+}
+
+.memory-card:focus-visible {
+    outline: 3px solid #fd7e14;
+    outline-offset: 3px;
+    border-radius: 14px;
 }
 
 /* Responsive */
 @media (max-width: 576px) {
-  .memory-board {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.9rem;
-  }
+    .memory-board {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0.9rem;
+    }
 }
 
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-  .memory-card .inner,
-  .memory-card:hover .front {
-    transition: none;
-  }
+    .memory-card .inner,
+    .memory-card:hover .front {
+          transition: none;
+    }
 }
 
-/* Dark theme (Easter egg) */
+/* Dark theme (Easter egg — activated via unlockSecret() in console) */
 .dark {
-  --card-bg: #343a40;
+    --card-bg: #343a40;
 }
 
 .dark .memory-card .front {
-  background-color: #495057;
-  border-color: #0dcaf0;
+    background-color: #495057;
+    border-color: #0dcaf0;
 }
