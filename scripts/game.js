@@ -1,194 +1,104 @@
-import { loadGameData, saveGameData } from './storage.js';
+import { saveSettings, loadSettings } from './storage.js';
 
-const emojiPool = ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🐸','🐵'];
-
-let deck = [];
-let flippedCards = [];
-let moves = 0;
-let time = 0;
-let timerInterval = null;
-let matches = 0;
-let totalPairs = 6;
-let gameStarted = false;
-
-const boardEl = document.getElementById('gameBoard');
-const movesDisplay = document.getElementById('movesDisplay');
-const timerDisplay = document.getElementById('timerDisplay');
-const progressBar = document.getElementById('progressBar');
-const progressText = document.getElementById('progressText');
+const gameBoard = document.getElementById('gameBoard');
+const scoreDisplay = document.getElementById('scoreDisplay');
 const playerDisplay = document.getElementById('playerDisplay');
 const resetBtn = document.getElementById('resetBtn');
+const settingsForm = document.getElementById('settingsForm');
 
-let currentData = loadGameData();
+let score = 0;
+let firstCard = null;
+let secondCard = null;
 
-// Easter Egg
-console.log('%c🎮 Easter Egg: Type unlockSecret() in the console!', 'color: #0d6efd; font-size: 14px;');
+// Emoji pairs
+const cards = [
+    {emoji: '😀'}, {emoji: '😀'},
+    {emoji: '🎉'}, {emoji: '🎉'},
+    {emoji: '🍎'}, {emoji: '🍎'},
+    {emoji: '⚽'}, {emoji: '⚽'},
+    {emoji: '🚗'}, {emoji: '🚗'},
+    {emoji: '🐶'}, {emoji: '🐶'}
+];
 
-window.unlockSecret = () => {
-  document.documentElement.classList.add('dark');
-  console.log('🌟 Secret dark theme activated!');
-};
-
-// Create shuffled deck
-function createDeck(numPairs) {
-  const selected = emojiPool.slice(0, numPairs);
-  let newDeck = [];
-  selected.forEach((emoji, i) => {
-    newDeck.push({ id: i * 2, emoji, matched: false });
-    newDeck.push({ id: i * 2 + 1, emoji, matched: false });
-  });
-  return newDeck.sort(() => Math.random() - 0.5);
+// Shuffle array
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
 }
 
 // Render the board
 function renderBoard() {
-  boardEl.innerHTML = '';
-  deck.forEach((card, index) => {
-    const cardEl = document.createElement('div');
-    cardEl.className = 'memory-card';
-    cardEl.dataset.index = index;
-
-    cardEl.innerHTML = `
-      <div class="inner">
-        <div class="front">❓</div>
-        <div class="back">${card.emoji}</div>
-      </div>
-    `;
-
-    cardEl.addEventListener('click', () => handleCardClick(cardEl, index));
-    boardEl.appendChild(cardEl);
-  });
+    gameBoard.innerHTML = '';
+    shuffle(cards).forEach((card, index) => {
+        const div = document.createElement('div');
+        div.className = 'col-3 card text-center py-4 fs-1';
+        div.dataset.index = index;
+        div.dataset.emoji = card.emoji;
+        div.textContent = '❓';
+        div.addEventListener('click', flipCard);
+        gameBoard.appendChild(div);
+    });
 }
 
-function handleCardClick(cardEl, index) {
-  if (!gameStarted) {
-    startTimer();
-    gameStarted = true;
-  }
+// Flip logic
+function flipCard(e) {
+    const card = e.currentTarget;
+    if (card === firstCard || card.classList.contains('matched')) return;
 
-  if (flippedCards.length >= 2 || cardEl.classList.contains('flipped') || deck[index].matched) {
-    return;
-  }
+    card.textContent = card.dataset.emoji;
 
-  cardEl.classList.add('flipped');
-  flippedCards.push({ el: cardEl, index });
-
-  if (flippedCards.length === 2) {
-    moves++;
-    movesDisplay.textContent = moves;
-    checkForMatch();
-  }
-}
-
-function checkForMatch() {
-  const [first, second] = flippedCards;
-  const card1 = deck[first.index];
-  const card2 = deck[second.index];
-
-  if (card1.emoji === card2.emoji) {
-    card1.matched = true;
-    card2.matched = true;
-    first.el.classList.add('matched');
-    second.el.classList.add('matched');
-    matches++;
-    updateProgress();
-
-    if (matches === totalPairs) {
-      setTimeout(endGame, 600);
+    if (!firstCard) {
+        firstCard = card;
+        return;
     }
-    flippedCards = [];
-  } else {
-    setTimeout(() => {
-      first.el.classList.remove('flipped');
-      second.el.classList.remove('flipped');
-      flippedCards = [];
-    }, 1000);
-  }
+    secondCard = card;
+
+    if (firstCard.dataset.emoji === secondCard.dataset.emoji) {
+        firstCard.classList.add('matched');
+        secondCard.classList.add('matched');
+        score++;
+        scoreDisplay.textContent = `Score: ${score}`;
+    } else {
+        setTimeout(() => {
+            firstCard.textContent = '❓';
+            secondCard.textContent = '❓';
+        }, 1000);
+    }
+    firstCard = null;
+    secondCard = null;
 }
 
-function updateProgress() {
-  const percent = Math.round((matches / totalPairs) * 100);
-  progressBar.style.width = `${percent}%`;
-  progressText.textContent = `${matches} / ${totalPairs} matched`;
-}
-
-function startTimer() {
-  if (timerInterval) return;
-  timerInterval = setInterval(() => {
-    time++;
-    const min = Math.floor(time / 60).toString().padStart(2, '0');
-    const sec = (time % 60).toString().padStart(2, '0');
-    timerDisplay.textContent = `${min}:${sec}`;
-  }, 1000);
-}
-
-function stopTimer() {
-  clearInterval(timerInterval);
-  timerInterval = null;
-}
-
-function endGame() {
-  stopTimer();
-  const finalTime = time;
-  const finalMoves = moves;
-
-  alert(`🎉 Congratulations ${currentData.playerName}!\nYou won in ${finalMoves} moves and ${finalTime} seconds!`);
-
-  // Update high score if better
-  if (finalMoves < (currentData.highScore?.moves || Infinity)) {
-    currentData.highScore = { moves: finalMoves, time: finalTime };
-    saveGameData(currentData);
-  }
-
-  setTimeout(resetGame, 800);
-}
-
+// Reset game
 function resetGame() {
-  stopTimer();
-  time = 0;
-  moves = 0;
-  matches = 0;
-  flippedCards = [];
-  gameStarted = false;
-
-  totalPairs = parseInt(currentData.preferences?.difficulty || 6);
-  deck = createDeck(totalPairs);
-
-  movesDisplay.textContent = '0';
-  timerDisplay.textContent = '00:00';
-  progressBar.style.width = '0%';
-  progressText.textContent = `0 / ${totalPairs} matched`;
-
-  renderBoard();
+    score = 0;
+    scoreDisplay.textContent = `Score: ${score}`;
+    renderBoard();
 }
 
-// Settings Form
-const settingsForm = document.getElementById('settingsForm');
-if (settingsForm) {
-  document.getElementById('playerNameInput').value = currentData.playerName || 'Player';
-  document.getElementById('difficultyInput').value = currentData.preferences?.difficulty || 6;
+// Settings
+function applySettings() {
+    const settings = loadSettings();
+    playerDisplay.textContent = `Player: ${settings.playerName || '-'}`;
+    document.body.dataset.theme = settings.theme;
+}
 
-  settingsForm.addEventListener('submit', (e) => {
+// Form validation
+settingsForm.addEventListener('submit', e => {
     e.preventDefault();
     if (!settingsForm.checkValidity()) {
-      settingsForm.classList.add('was-validated');
-      return;
+        settingsForm.classList.add('was-validated');
+        return;
     }
+    const name = document.getElementById('playerName').value;
+    const theme = document.getElementById('themeSelect').value;
+    saveSettings(name, theme);
+    applySettings();
+});
 
-    currentData.playerName = document.getElementById('playerNameInput').value.trim();
-    currentData.preferences = currentData.preferences || {};
-    currentData.preferences.difficulty = parseInt(document.getElementById('difficultyInput').value);
+resetBtn.addEventListener('click', resetGame);
 
-    saveGameData(currentData);
-    playerDisplay.textContent = currentData.playerName;
-
-    bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
-    resetGame();
-  });
-}
-
-playerDisplay.textContent = currentData.playerName || 'Player';
+// Init
+applySettings();
 resetGame();
 
-// Reset button
-resetBtn.addEventListener('click', resetGame);
+// Easter egg
+console.log("Hint: Try flipping the '🚗' card first for a fun surprise!");
