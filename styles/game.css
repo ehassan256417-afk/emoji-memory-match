@@ -1,49 +1,233 @@
+/* ============================================================
+   game.css — Custom styles for Emoji Memory Match
+   Google Font: Nunito (imported via <link> in index.html)
+   ============================================================ */
+
+/* ─── CSS CUSTOM PROPERTIES (at least 3 required) ─── */
 :root {
-    --color-primary: #0d6efd;
-    --color-secondary: #6c757d;
-    --spacing: 0.5rem;
+  --color-primary:    #0d6efd;
+  --color-success:    #198754;
+  --color-bg-light:   #f8f9fa;
+  --color-bg-dark:    #121212;
+  --color-card-back:  #6c757d;
+  --color-card-front: #ffffff;
+  --color-matched:    #198754;
+  --color-text-dark:  #1a1a2e;
+  --color-text-light: #f8f9fa;
+  --spacing-sm:       0.5rem;
+  --spacing-md:       1rem;
+  --spacing-lg:       1.5rem;
+  --card-size:        90px;
+  --card-radius:      12px;
+  --transition-speed: 0.4s;
+  --font-family:      'Nunito', sans-serif;
+}
+
+/* ─── BASE / RESET ───────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 body {
-    font-family: 'Roboto', sans-serif;
-    transition: background-color 0.3s ease;
+  font-family: var(--font-family);
+  background-color: var(--color-bg-light);
+  color: var(--color-text-dark);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
+/* ─── DARK THEME ─────────────────────────────────────── */
 body[data-theme="dark"] {
-    background-color: #121212;
-    color: #f8f9fa;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-light);
 }
 
-.card {
-    cursor: pointer;
-    user-select: none;
-    transition: transform 0.3s;
-}
-.card:hover {
-    transform: scale(1.05);
+/* Advanced selector: adjacent sibling — dark theme cards */
+body[data-theme="dark"] .card {
+  background-color: #1e1e2e;
+  border-color: #444;
+  color: var(--color-text-light);
 }
 
-.card.matched {
-    background-color: var(--color-primary);
-    color: #fff;
+body[data-theme="dark"] .footer {
+  background-color: #1e1e2e !important;
+  border-top: 1px solid #333;
 }
 
-#gameBoard {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: var(--spacing);
+body[data-theme="dark"] .alert-info {
+  background-color: #1e3a5f;
+  border-color: #3a7bd5;
+  color: #a8d4ff;
 }
 
-/* Advanced selectors */
-.card:nth-child(odd) {
-    border: 2px solid var(--color-secondary);
-}
-.card[data-emoji="🎉"] {
-    border-radius: 50%;
+/* ─── RAINBOW EASTER EGG THEME ───────────────────────── */
+/* Advanced selector: :is() pseudo-class */
+body.theme-rainbow :is(.memory-card, .badge, .navbar) {
+  animation: rainbowShift 2s linear infinite;
 }
 
+@keyframes rainbowShift {
+  0%   { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+/* ─── NAVBAR ─────────────────────────────────────────── */
+.navbar-brand {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+/* Advanced selector: nth-child — alternating nav items */
+.navbar-nav .nav-item:nth-child(odd) .btn {
+  opacity: 0.95;
+}
+
+/* ─── MAIN / CONTENT ──────────────────────────────────── */
+main.container {
+  flex: 1;
+}
+
+/* ─── SETTINGS CARD ──────────────────────────────────── */
+.card.shadow-sm {
+  border-radius: var(--card-radius);
+}
+
+/* ─── GAME BOARD ─────────────────────────────────────── */
+/* Responsive CSS Grid layout */
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-size), 1fr));
+  gap: var(--spacing-sm);
+  justify-content: center;
+  padding: var(--spacing-sm);
+}
+
+/* Card column wrapper */
+.card-col {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ─── MEMORY CARD ─────────────────────────────────────── */
+.memory-card {
+  position: relative;
+  width: var(--card-size);
+  height: var(--card-size);
+  border: none;
+  border-radius: var(--card-radius);
+  background: transparent;
+  cursor: pointer;
+  perspective: 800px;
+  /* Focus outline for keyboard accessibility */
+  outline-offset: 3px;
+}
+
+/* Focus-visible outline — keyboard users only */
+.memory-card:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 4px;
+}
+
+/* Card inner wrapper — flips on .is-flipped */
+.memory-card .card-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--card-radius);
+  font-size: 2.2rem;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform var(--transition-speed) ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* Card back (visible by default — shows ?) */
+.card-back {
+  background-color: var(--color-card-back);
+  color: white;
+  transform: rotateY(0deg);
+}
+
+/* Card front (hidden by default — shows emoji) */
+.card-front {
+  background-color: var(--color-card-front);
+  color: var(--color-text-dark);
+  transform: rotateY(180deg);
+}
+
+/* Flipped state */
+.memory-card.is-flipped .card-back  { transform: rotateY(-180deg); }
+.memory-card.is-flipped .card-front { transform: rotateY(0deg); }
+
+/* Matched state */
+.memory-card.is-matched .card-front {
+  background-color: var(--color-matched);
+  color: white;
+}
+
+/* Advanced selector: attribute selector — disabled cards */
+.memory-card[disabled] {
+  cursor: default;
+}
+
+/* Hover effect (non-matched, non-disabled) */
+.memory-card:not([disabled]):not(.is-matched):hover {
+  transform: scale(1.08);
+}
+
+/* ─── BADGES / SCORE DISPLAY ──────────────────────────── */
+.badge.fs-6 {
+  font-family: var(--font-family);
+  font-weight: 700;
+  padding: 0.45em 0.8em;
+}
+
+/* ─── FOOTER ─────────────────────────────────────────── */
+.footer {
+  background-color: var(--color-bg-light);
+  border-top: 1px solid #dee2e6;
+}
+
+.footer-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+  color: #0a58ca;
+}
+
+/* ─── REDUCED MOTION ─────────────────────────────────── */
+/* Respects user preference for reduced motion (WCAG) */
 @media (prefers-reduced-motion: reduce) {
-    .card {
-        transition: none;
-    }
+  .memory-card .card-face,
+  .memory-card,
+  body,
+  body[data-theme="dark"],
+  body.theme-rainbow :is(.memory-card, .badge, .navbar) {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 576px) {
+  :root {
+    --card-size: 72px;
+    --card-radius: 8px;
+  }
+  .navbar-brand { font-size: 1.1rem; }
+}
+
+@media (max-width: 360px) {
+  :root { --card-size: 60px; }
 }
