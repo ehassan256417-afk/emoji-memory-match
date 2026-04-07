@@ -1,88 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emoji Memory Match</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles/game.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emoji Memory Match — Card Matching Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles/game.css">
 </head>
-<body>
-<header class="bg-primary text-white p-3">
-    <nav class="navbar navbar-expand-lg navbar-dark container">
-        <a class="navbar-brand" href="#">Emoji Match</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><button class="btn btn-light me-2" id="resetBtn">Play / Reset</button></li>
-                <li class="nav-item"><button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#howToPlayModal">How to Play</button></li>
-                <li class="nav-item"><a class="btn btn-light ms-2" href="#">Dev Profile</a></li>
-            </ul>
-        </div>
-    </nav>
+<body data-theme="light">
+
+<header>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary" aria-label="Main navigation">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">Emoji Memory Match</a>
+      <button class="navbar-toggler" type="button"
+              data-bs-toggle="collapse" data-bs-target="#navbarNav"
+              aria-controls="navbarNav" aria-expanded="false"
+              aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto gap-1">
+          <li class="nav-item">
+            <button class="btn btn-outline-light btn-sm" id="resetBtn">Play / Reset</button>
+          </li>
+          <li class="nav-item">
+            <button class="btn btn-outline-light btn-sm"
+                    data-bs-toggle="modal" data-bs-target="#howToPlayModal">
+              How to Play
+            </button>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-outline-light btn-sm"
+               href="https://ehassan256417-afk.github.io/"
+               target="_blank" rel="noopener">Dev Profile</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 </header>
 
-<main class="container my-4">
-    <section class="mb-3">
-        <form id="settingsForm" class="row g-3 needs-validation" novalidate>
-            <div class="col-md-4">
-                <label for="playerName" class="form-label">Player Name</label>
-                <input type="text" class="form-control" id="playerName" required pattern="^[A-Za-z ]{2,20}$">
-                <div class="invalid-feedback">Enter 2-20 letters only.</div>
-            </div>
-            <div class="col-md-4">
-                <label for="themeSelect" class="form-label">Theme</label>
-                <select class="form-select" id="themeSelect" required>
-                    <option value="light" selected>Light</option>
-                    <option value="dark">Dark</option>
-                </select>
-                <div class="invalid-feedback">Select a theme.</div>
-            </div>
-            <div class="col-md-4 align-self-end">
-                <button class="btn btn-success" type="submit">Save Settings</button>
-            </div>
-        </form>
-    </section>
+<main class="container my-4" id="mainContent">
 
-    <section>
-        <div class="d-flex justify-content-between mb-2">
-            <span id="playerDisplay">Player: -</span>
-            <span id="scoreDisplay">Score: 0</span>
-        </div>
-        <div id="gameBoard" class="row g-2"></div>
-    </section>
+  <section aria-labelledby="settingsHeading" class="mb-4">
+    <h2 id="settingsHeading" class="h5 mb-3">Settings</h2>
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <form id="settingsForm" class="row g-3 needs-validation" novalidate>
+          <div class="col-md-4">
+            <label for="playerName" class="form-label fw-semibold">Player Name</label>
+            <input type="text" class="form-control" id="playerName"
+                   placeholder="e.g. Alex"
+                   required minlength="2" maxlength="20"
+                   pattern="^[A-Za-z ]{2,20}$"
+                   aria-describedby="playerNameFeedback">
+            <div class="invalid-feedback" id="playerNameFeedback">
+              Enter 2-20 letters only (no numbers or symbols).
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label for="difficultySelect" class="form-label fw-semibold">Difficulty</label>
+            <select class="form-select" id="difficultySelect" required
+                    aria-describedby="difficultyFeedback">
+              <option value="easy">Easy (8 cards)</option>
+              <option value="medium" selected>Medium (16 cards)</option>
+              <option value="hard">Hard (24 cards)</option>
+            </select>
+            <div class="invalid-feedback" id="difficultyFeedback">Please select a difficulty.</div>
+          </div>
+          <div class="col-md-3">
+            <label for="themeSelect" class="form-label fw-semibold">Theme</label>
+            <select class="form-select" id="themeSelect">
+              <option value="light" selected>Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+          <div class="col-md-2 align-self-end">
+            <button class="btn btn-success w-100" type="submit">Save &amp; Apply</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="statusHeading" class="mb-3">
+    <h2 id="statusHeading" class="visually-hidden">Game Status</h2>
+    <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+      <span id="playerDisplay" class="badge bg-primary fs-6">Player: -</span>
+      <span id="scoreDisplay" class="badge bg-success fs-6" aria-live="polite" aria-atomic="true">Score: 0</span>
+      <span id="attemptsDisplay" class="badge bg-secondary fs-6" aria-live="polite" aria-atomic="true">Attempts: 0</span>
+      <span id="timerDisplay" class="badge bg-warning text-dark fs-6" aria-live="polite" aria-atomic="true">Time: 0s</span>
+      <span id="highScoreDisplay" class="badge bg-info text-dark fs-6 ms-auto">Best: -</span>
+    </div>
+    <div class="progress" style="height:10px;" role="progressbar"
+         aria-label="Game completion progress"
+         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+         id="progressBarWrapper">
+      <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+           id="progressBar" style="width:0%"></div>
+    </div>
+  </section>
+
+  <div id="statusMessage" class="alert alert-info py-2 mb-3"
+       role="status" aria-live="polite" aria-atomic="true">
+    Enter your name above and click <strong>Play / Reset</strong> to start!
+  </div>
+
+  <section aria-labelledby="boardHeading">
+    <h2 id="boardHeading" class="visually-hidden">Game Board</h2>
+    <div id="gameBoard" class="game-board" aria-label="Memory card grid"></div>
+  </section>
+
 </main>
 
-<footer class="bg-light text-center p-3">
-    <a href="#" class="me-2">Dev Profile</a>
-    <a href="#" class="me-2">Repo</a>
-    <a href="#" class="me-2">Nu Validator</a>
-    <a href="#">WAVE</a>
+<footer class="footer mt-auto py-3" aria-label="Site links">
+  <div class="container text-center">
+    <nav aria-label="Footer navigation">
+      <a href="https://ehassan256417-afk.github.io/" class="footer-link me-3"
+         target="_blank" rel="noopener">Dev Profile</a>
+      <a href="https://github.com/ehassan256417-afk/emoji-memory-match" class="footer-link me-3"
+         target="_blank" rel="noopener">Source Repo</a>
+      <a href="https://github.com/ehassan256417-afk" class="footer-link me-3"
+         target="_blank" rel="noopener">GitHub Profile</a>
+      <a href="https://validator.w3.org/nu/?doc=https%3A%2F%2Fehassan256417-afk.github.io%2Femoji-memory-match%2F"
+         class="footer-link me-3" target="_blank" rel="noopener">Nu Validator</a>
+      <a href="https://wave.webaim.org/report#/https://ehassan256417-afk.github.io/emoji-memory-match/"
+         class="footer-link" target="_blank" rel="noopener">WAVE Check</a>
+    </nav>
+    <p class="text-muted small mt-2 mb-0">&copy; 2026 Emoji Memory Match &middot; Bootstrap 5 &amp; ES Modules</p>
+  </div>
 </footer>
 
-<!-- How to Play Modal -->
-<div class="modal fade" id="howToPlayModal" tabindex="-1" aria-labelledby="howToPlayLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">How to Play</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Match all pairs of emojis as fast as possible. Flip two cards at a time. Score increases with each match.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
+<div class="modal fade" id="howToPlayModal" tabindex="-1"
+     aria-labelledby="howToPlayLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h2 class="modal-title h5" id="howToPlayLabel">How to Play</h2>
+        <button type="button" class="btn-close btn-close-white"
+                data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <ol>
+          <li>Enter your <strong>name</strong> and choose a <strong>difficulty</strong>, then click <em>Save &amp; Apply</em>.</li>
+          <li>Click <strong>Play / Reset</strong> to shuffle and deal the cards.</li>
+          <li>Click any card to flip it and reveal the emoji.</li>
+          <li>Click a second card. If the emojis <strong>match</strong>, they stay face-up!</li>
+          <li>If they do not match, both cards flip back after a short pause.</li>
+          <li>Match all pairs to win. Fewer attempts = higher score!</li>
+        </ol>
+        <hr>
+        <p class="mb-0 text-muted small">Tip: Your best score is saved automatically.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Lets Play!</button>
+      </div>
     </div>
+  </div>
 </div>
 
-<script type="module" src="scripts/game.js"></script>
+<div class="modal fade" id="winModal" tabindex="-1"
+     aria-labelledby="winModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h2 class="modal-title h5" id="winModalLabel">You Won!</h2>
+        <button type="button" class="btn-close btn-close-white"
+                data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p class="fs-4">Congratulations!</p>
+        <p id="winStats" class="mb-0"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="playAgainBtn">Play Again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="scripts/game.js"></script>
+
 </body>
 </html>
