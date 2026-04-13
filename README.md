@@ -42,17 +42,18 @@ The wireframe shows the layout: navbar at top, settings form, score badges + pro
 ## Project Structure
 
 ```
-/
-index.html          # Main page (semantic HTML5, Bootstrap 5)
-/scripts
-  game.js           # Main game module (ES Module)
-  storage.js        # LocalStorage helpers (ES Module)
-/styles
-  game.css          # Custom CSS (variables, grid, flip animations)
-/images
-  wireframe.png     # Hand-drawn wireframe
-README.md
-```
+   index.html
+│   README.md
+│
+├───images
+│       wireframe.png.png
+│
+├───scripts
+│       game.js
+│       storage.js
+│
+└───styles
+        game.css
 
 ## Bootstrap 5 Components Used
 
