@@ -54,6 +54,7 @@ The wireframe shows the layout: navbar at top, settings form, score badges + pro
 │
 └───styles
         game.css
+```
 
 ## Bootstrap 5 Components Used
 
